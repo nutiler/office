@@ -8,10 +8,9 @@ window.addEventListener('DOMContentLoaded', function() {
     canvas = document.getElementById('renderCanvas');
     engine = new BABYLON.Engine(canvas, true);
 
+
     createScene = function() {
         scene = new BABYLON.Scene(engine);
-        // scene.debugLayer.show();
-
         BABYLON.OBJFileLoader.OPTIMIZE_WITH_UV = true;
 
         // create a FreeCamera, and set its position to (x:0, y:5, z:-10)
@@ -27,7 +26,7 @@ window.addEventListener('DOMContentLoaded', function() {
         sphere.position.y = 1;
 
         loader = new BABYLON.AssetsManager(scene);
-        loader.addMeshTask("name", "", "./models/", "office_with_objects.obj");
+        loader.addMeshTask("name", "", "./assets/models/", "office_with_objects.obj");
         loader.load();
 
         // var text;

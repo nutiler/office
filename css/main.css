@@ -12,3 +12,15 @@ body {
     height: 100%;
     touch-action: none;
 }
+
+#settings {
+    filter: invert(90%);
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    color: white;
+    border-radius: 4px;
+    text-decoration: none;
+    max-height: 8%;
+
+}
