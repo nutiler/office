@@ -14,19 +14,19 @@ window.addEventListener('DOMContentLoaded', function() {
         BABYLON.OBJFileLoader.OPTIMIZE_WITH_UV = true;
 
         // create a FreeCamera, and set its position to (x:0, y:5, z:-10)
-        camera = new BABYLON.FreeCamera('camera1', new BABYLON.Vector3(0, 5, -10), scene);
-        camera.setTarget(BABYLON.Vector3.Zero());
+        camera = new BABYLON.FreeCamera('camera1', new BABYLON.Vector3(0, 200, 0), scene);
+        // camera.setTarget(BABYLON.Vector3.Zero());
         camera.attachControl(canvas, false);
 
         // create a basic light, aiming 0,1,0 - meaning, to the sky
         light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0, 1, 0), scene);
 
         // create a built-in "sphere" shape; its constructor takes 5 params: name, width, depth, subdivisions, scene
-        sphere = BABYLON.Mesh.CreateSphere('sphere1', 16, 2, scene);
-        sphere.position.y = 1;
+        // sphere = BABYLON.Mesh.CreateSphere('sphere1', 16, 2, scene);
+        // sphere.position.y = 1;
 
         loader = new BABYLON.AssetsManager(scene);
-        loader.addMeshTask("name", "", "./assets/models/", "office_with_objects.obj");
+        loader.addMeshTask("name", "", "./assets/models/office_test/", "office.obj");
         loader.load();
 
         // var text;
@@ -38,7 +38,7 @@ window.addEventListener('DOMContentLoaded', function() {
         // });
 
         // create a built-in "ground" shape; its constructor takes the same 5 params as the sphere's one
-        ground = BABYLON.Mesh.CreateGround('ground1', 6, 6, 2, scene);
+        // ground = BABYLON.Mesh.CreateGround('ground1', 6, 6, 2, scene);
 
         // return the created scene
         return scene;

@@ -1,3 +1,7 @@
+##Office Simulator
+
+Physics engine test enviorment, under construction.
+
 babylon with collision, obj loader, Oimo.js, gui
 player controls
 objects loaded into scene
