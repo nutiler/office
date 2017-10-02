@@ -14,3 +14,12 @@ Babylon.js:
 [Shadows](http://doc.babylonjs.com/tutorials/shadows)
 
 http://www.babylonjs-playground.com/#203BJM#6
+
+
+Outline:
+- Model Enviorment
+- Controls (mouse, keys & sticks.)
+- Collision Detection
+- Physics Engine for Objects
+- Audio Enviorment
+- Post Processing
