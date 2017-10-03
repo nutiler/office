@@ -11,11 +11,12 @@ window.addEventListener('DOMContentLoaded', function() {
 
     createScene = function() {
         BABYLON.OBJFileLoader.OPTIMIZE_WITH_UV = true;
-        // BABYLON.SceneLoader.ShowLoadingScreen = false;
+        BABYLON.SceneLoader.ShowLoadingScreen = false;
 
         // Scene
         scene = new BABYLON.Scene(engine);
-        scene.gravity = new BABYLON.Vector3(0, -0.981, 0);
+        scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0), new BABYLON.OimoJSPlugin());
+        scene.gravity = new BABYLON.Vector3(0, -0.981, 0); //un
         scene.collisionsEnabled = true;
         scene.clearColor = BABYLON.Color3.Black();
 
@@ -24,7 +25,7 @@ window.addEventListener('DOMContentLoaded', function() {
         camera.attachControl(canvas, true);
         camera.checkCollisions = true;
         camera.applyGravity = true;
-        
+
         // WASD Camera Controls
         camera.keysUp.push(87);
         camera.keysLeft.push(65);
@@ -50,17 +51,28 @@ window.addEventListener('DOMContentLoaded', function() {
         ground.rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
         ground.checkCollisions = true;
 
+        // Sphere
+        sphere = BABYLON.Mesh.CreateSphere("sphere", 16, 2, scene);
+        sphere.position.y = 2;
+        
+        // Apply Physics
+        sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 3, restitution: 0.9 }, scene);
+        ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
+
+
         // Coffee Object
         BABYLON.SceneLoader.ImportMesh("", "./assets/models/coffee/", "coffee.obj", scene, function(newMeshes) {
             newMeshes.forEach(function(coffee) {
                 coffee.checkCollisions = true;
                 coffee.position.z = 5;
                 coffee.position.y = 1.5;
+                coffee.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
             });
         });
 
         return scene;
     };
+
 
     scene = createScene();
     engine.runRenderLoop(function() {
@@ -70,6 +82,7 @@ window.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('resize', function() {
         engine.resize();
     });
+    
 
 });
 
