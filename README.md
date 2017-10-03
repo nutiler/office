@@ -14,6 +14,7 @@ Babylon.js:
 [Shadows](http://doc.babylonjs.com/tutorials/shadows)
 
 http://www.babylonjs-playground.com/#203BJM#6
+http://www.babylonjs.com/versionbuilder/
 
 
 Outline:
@@ -23,3 +24,5 @@ Outline:
 - Physics Engine for Objects
 - Audio Enviorment
 - Post Processing
+
+Scale size 0.01 xyz

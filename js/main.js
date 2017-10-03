@@ -1,5 +1,5 @@
 let canvas, engine, scene, camera, loader;
-let ground, sphere, box, light0, light1, light2;
+let ground, sphere, box, light0, light1, light2, grid;
 let createScene;
 
 /*global BABYLON*/
@@ -11,58 +11,67 @@ window.addEventListener('DOMContentLoaded', function() {
 
     createScene = function() {
         BABYLON.OBJFileLoader.OPTIMIZE_WITH_UV = true;
-        BABYLON.SceneLoader.ShowLoadingScreen = false;
+        // BABYLON.SceneLoader.ShowLoadingScreen = false;
 
         // Scene
         scene = new BABYLON.Scene(engine);
         scene.gravity = new BABYLON.Vector3(0, -0.981, 0);
         scene.collisionsEnabled = true;
+        scene.clearColor = BABYLON.Color3.Black();
 
         // Camera
         camera = new BABYLON.FreeCamera("FreeCamera", new BABYLON.Vector3(0, 2.4, 0), scene);
         camera.attachControl(canvas, true);
         camera.checkCollisions = true;
         camera.applyGravity = true;
-        // Set the ellipsoid around the camera (e.g. your player's size)
-        camera.ellipsoid = new BABYLON.Vector3(1.3, 1.3, 1.3);
+        
+        // WASD Camera Controls
+        camera.keysUp.push(87);
+        camera.keysLeft.push(65);
+        camera.keysDown.push(83);
+        camera.keysRight.push(68);
 
-        // Lights
-        light0 = new BABYLON.HemisphericLight('light0', new BABYLON.Vector3(0, 1, 0), scene);
-        // light1 = new BABYLON.PointLight("light1", new BABYLON.Vector3(-1, 1, 1), scene);
-        // light2 = new BABYLON.DirectionalLight("light2", new BABYLON.Vector3(1, 1, -1), scene);
+        // Ellipsoid on Camera
+        camera.ellipsoid = new BABYLON.Vector3(1, 1, 1);
 
-        //Ground
-        // ground = BABYLON.Mesh.CreatePlane("ground", 50.0, scene);
-        // ground.material = new BABYLON.StandardMaterial("groundMat", scene);
-        // ground.material.diffuseColor = new BABYLON.Color3(1, 1, 1);
-        // ground.material.backFaceCulling = false;
-        // ground.position = new BABYLON.Vector3(0, 0, 0);
-        // ground.rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
-        // ground.checkCollisions = true;
+        // Lighting
+        light0 = new BABYLON.HemisphericLight('light0', new BABYLON.Vector3(0, 10, 0), scene);
+        light0.intensity = 1.5;
 
+        // Grid Material
+        grid = new BABYLON.GridMaterial("grid", scene);
+        grid.gridRatio = 1;
+        grid.majorUnitFrequency = 5;
 
-        BABYLON.SceneLoader.ImportMesh("", "./assets/models/Office_full/", "Office_full.obj", scene, function(newMeshes) {
-            newMeshes.forEach(function(element) {
-                element.scaling = new BABYLON.Vector3(0.09, 0.09, 0.09);
-                element.checkCollisions = true;
+        // Ground
+        ground = BABYLON.Mesh.CreatePlane("ground", 50.0, scene);
+        ground.material = grid;
+        ground.position = new BABYLON.Vector3(0, 0, 0);
+        ground.rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
+        ground.checkCollisions = true;
+
+        // Coffee Object
+        BABYLON.SceneLoader.ImportMesh("", "./assets/models/coffee/", "coffee.obj", scene, function(newMeshes) {
+            newMeshes.forEach(function(coffee) {
+                coffee.checkCollisions = true;
+                coffee.position.z = 5;
+                coffee.position.y = 1.5;
             });
         });
 
         return scene;
     };
 
-
     scene = createScene();
     engine.runRenderLoop(function() {
         scene.render();
     });
 
-
     window.addEventListener('resize', function() {
         engine.resize();
     });
-});
 
+});
 
 
 // Unused Loader
@@ -73,3 +82,11 @@ window.addEventListener('DOMContentLoaded', function() {
 //     element.checkCollisions = true;
 // });
 // loader.load();
+
+
+// BABYLON.SceneLoader.ImportMesh("", "./assets/models/Office_full/", "Office_full.obj", scene, function(newMeshes) {
+//     newMeshes.forEach(function(element) {
+//         element.scaling = new BABYLON.Vector3(0.09, 0.09, 0.09);
+//         element.checkCollisions = true;
+//     });
+// });

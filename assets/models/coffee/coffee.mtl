@@ -1,0 +1,4 @@
+﻿newmtl /Game/SimpleOffice/Materials/M_SimpleOffice_M_SimpleOffice
+	map_Kd M_SimpleOffice_M_SimpleOffice_D.bmp
+	map_Ks M_SimpleOffice_M_SimpleOffice_S.bmp
+	bump M_SimpleOffice_M_SimpleOffice_N.bmp
