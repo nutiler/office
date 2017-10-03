@@ -26,3 +26,5 @@ Outline:
 - Post Processing
 
 Scale size 0.01 xyz
+
+attach object on-hold click  to infront of camera, 
