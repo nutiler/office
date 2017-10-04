@@ -12,6 +12,7 @@ Babylon.js:
 [Lighting](http://doc.babylonjs.com/tutorials/lights)
 [Fog](http://doc.babylonjs.com/tutorials/environment#fog)
 [Shadows](http://doc.babylonjs.com/tutorials/shadows)
+[Triggers](https://doc.babylonjs.com/tutorials/how_to_use_actions)
 
 http://www.babylonjs-playground.com/#203BJM#6
 http://www.babylonjs.com/versionbuilder/
@@ -28,3 +29,5 @@ Outline:
 Scale size 0.01 xyz
 
 attach object on-hold click  to infront of camera, 
+
+http://store.steampowered.com/app/448280/Job_Simulator/

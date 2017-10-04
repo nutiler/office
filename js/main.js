@@ -1,6 +1,6 @@
 let canvas, engine, scene, camera, loader;
-let ground, sphere, box, light0, light1, light2, grid;
-let hover, clickable, green, click;
+let ground, sphere, box, light0, light1, light2;
+let hover, clickable, click, grid, green, red, yellow;
 let createScene;
 
 /*global BABYLON*/
@@ -10,7 +10,9 @@ window.addEventListener('DOMContentLoaded', function() {
     engine = new BABYLON.Engine(canvas, true);
 
 
+    // Setup for Scene
     createScene = function() {
+
         BABYLON.OBJFileLoader.OPTIMIZE_WITH_UV = true;
         BABYLON.SceneLoader.ShowLoadingScreen = false;
 
@@ -21,11 +23,13 @@ window.addEventListener('DOMContentLoaded', function() {
         scene.collisionsEnabled = true;
         scene.clearColor = BABYLON.Color3.Black();
 
+
         // Camera
-        camera = new BABYLON.FreeCamera("FreeCamera", new BABYLON.Vector3(0, 2, -6), scene);
+        camera = new BABYLON.FreeCamera("FreeCamera", new BABYLON.Vector3(0, 2, -30), scene);
         camera.attachControl(canvas, true);
         camera.checkCollisions = true;
         camera.applyGravity = true;
+        camera.speed = 0.5;
 
         // WASD Camera Controls
         camera.keysUp.push(87);
@@ -34,11 +38,13 @@ window.addEventListener('DOMContentLoaded', function() {
         camera.keysRight.push(68);
 
         // Ellipsoid on Camera
-        camera.ellipsoid = new BABYLON.Vector3(1, 1, 1);
+        camera.ellipsoid = new BABYLON.Vector3(1.3, 1.3, 1.3);
+
 
         // Lighting
         light0 = new BABYLON.HemisphericLight('light0', new BABYLON.Vector3(0, 10, 0), scene);
         light0.intensity = 1.5;
+
 
         // Grid Material
         grid = new BABYLON.GridMaterial("grid", scene);
@@ -47,6 +53,17 @@ window.addEventListener('DOMContentLoaded', function() {
         grid.mainColor = new BABYLON.Color3(0, 0, 0);
         grid.lineColor = new BABYLON.Color3(0.5, 1, 1);
 
+        // Basic Colors
+        green = new BABYLON.StandardMaterial("green", scene);
+        green.diffuseColor = new BABYLON.Color3(0, 1, 0);
+
+        red = new BABYLON.StandardMaterial("red", scene);
+        red.diffuseColor = new BABYLON.Color3(1, 0, 0);
+
+        yellow = new BABYLON.StandardMaterial("yellow", scene);
+        yellow.diffuseColor = new BABYLON.Color3(0, 0, 1);
+
+
         // Ground
         ground = BABYLON.Mesh.CreatePlane("ground", 200.0, scene);
         ground.material = grid;
@@ -54,37 +71,43 @@ window.addEventListener('DOMContentLoaded', function() {
         ground.rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
         ground.checkCollisions = true;
 
+
         // Sphere
         sphere = BABYLON.Mesh.CreateSphere("sphere", 16, 2, scene);
         sphere.position.y = 2;
+
 
         // Apply Physics
         sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 3, restitution: 0.9 }, scene);
         ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, friction: 0.1, restitution: 0.9 }, scene);
 
+
         // Load Coffee Object
-        BABYLON.SceneLoader.ImportMesh("", "./assets/models/coffee/", "coffee.obj", scene, function(newMeshes) {
-            newMeshes.forEach(function(coffee) {
-                coffee.checkCollisions = true;
-                coffee.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
-                // coffee.parent = camera;
-                coffee.position.set(0, 0, 2);
-            });
-        });
+        // BABYLON.SceneLoader.ImportMesh("", "./assets/models/coffee/", "coffee.obj", scene, function(newMeshes) {
+        //     newMeshes.forEach(function(coffee) {
+        //         coffee.checkCollisions = true;
+        //         coffee.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
+        //         coffee.parent = camera;
+        //         coffee.position.set(0, 0, 2);
+        //     });
+        // });
 
-        // On Click Event
-        click = BABYLON.Mesh.CreateBox("hover", 1, scene);
-        click.material = new BABYLON.StandardMaterial("texture", scene);
-        click.position = new BABYLON.Vector3(0, 0, -0.1);
 
-        //When pointer down event is raised
-        scene.onPointerDown = function(evt, pickResult) {
-            if (pickResult.hit) {
-                click.position.x = pickResult.pickedPoint.x;
-                click.position.y = pickResult.pickedPoint.y + 1;
-                click.position.z = pickResult.pickedPoint.z;
-            }
-        };
+        // // On Click Event
+        // click = BABYLON.Mesh.CreateBox("hover", 1, scene);
+        // click.material = new BABYLON.StandardMaterial("texture", scene);
+        // click.position = new BABYLON.Vector3(0, 0, -0.1);
+        // click.checkCollisions = true;
+
+        // //When pointer down event is raised
+        // scene.onPointerDown = function(evt, pickResult) {
+        //     if (pickResult.hit) {
+        //         click.position.x = pickResult.pickedPoint.x;
+        //         click.position.y = pickResult.pickedPoint.y + 1;
+        //         click.position.z = pickResult.pickedPoint.z;
+        //     }
+        // };
+
 
         // Hover Events
         hover = BABYLON.Mesh.CreateBox("hover", 4, scene);
@@ -92,12 +115,11 @@ window.addEventListener('DOMContentLoaded', function() {
         hover.position.set(-18, 2, -18);
         hover.isPickable = true;
         hover.actionManager = new BABYLON.ActionManager(scene);
+        hover.checkCollisions = true;
 
         // Mouse Enter
         hover.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOverTrigger, function(ev) {
             ev.meshUnderPointer.material.emissiveColor = BABYLON.Color3.Blue();
-            // scene.hoverCursor = " url('http://jerome.bousquie.fr/BJS/test/viseur.png') 12 12, auto ";
-            // alert("ayy")
         }));
 
         // Mouse Exit
@@ -105,29 +127,65 @@ window.addEventListener('DOMContentLoaded', function() {
             ev.meshUnderPointer.material.emissiveColor = BABYLON.Color3.Black();
         }));
 
+
         // Clickable Events
         clickable = BABYLON.Mesh.CreateBox("hover", 4, scene);
         clickable.material = new BABYLON.StandardMaterial("texture", scene);
         clickable.position.set(-8, 2, -18);
+        clickable.checkCollisions = true;
         clickable.actionManager = new BABYLON.ActionManager(scene);
-
-        green = new BABYLON.StandardMaterial("green", scene);
-        green.diffuseColor = new BABYLON.Color3(0, 1, 0);
 
         // On Click
         clickable.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function(ev) {
             ev.meshUnderPointer.material = green;
         }));
 
+
+        // Grabbable Object
+        pickup = BABYLON.Mesh.CreateBox("hover", 1, scene);
+        pickup.material = new BABYLON.StandardMaterial("texture", scene);
+        pickup.position.set(0, 2, -18);
+        pickup.checkCollisions = true;
+        pickup.actionManager = new BABYLON.ActionManager(scene);
+
+        // Pick Up Object
+        pickup.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickDownTrigger, function(ev) {
+            ev.meshUnderPointer.material = green;
+            ev.meshUnderPointer.parent = camera;
+            ev.meshUnderPointer.position.set(0, 0, 4);
+        }));
+
+        // Release Object
+        pickup.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function(ev) {
+            ev.meshUnderPointer.material = red;
+            ev.meshUnderPointer.setParent(null);
+        }));
+
+        // Mouse Exit
+        // pickup.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOutTrigger, function(ev) {
+        //     ev.meshUnderPointer.material.emissiveColor = BABYLON.Color3.Yellow();
+        // }));
+
+
+        // pickup.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickOutTrigger, function(ev) {
+        //     console.log(ev)
+        //     ev.meshUnderPointer.material = yellow;
+        //     // ev.meshUnderPointer.parent = ev.meshUnderPointer;
+        //     ev.meshUnderPointer.position.set(0, 0, 4);
+        // }));
+
+
         return scene;
     };
 
 
+    // Render Loop for Scene
     scene = createScene();
     engine.runRenderLoop(function() {
         scene.render();
     });
 
+    // Resize the scene on Window Change
     window.addEventListener('resize', function() {
         engine.resize();
     });
