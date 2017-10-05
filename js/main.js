@@ -1,6 +1,6 @@
 let canvas, engine, scene, camera, loader;
 let ground, sphere, box, light0, light1, light2;
-let hover, clickable, click, grid, green, red, yellow;
+let hover, pickup, clickable, click, grid, green, red, yellow, blue;
 let createScene;
 
 /*global BABYLON*/
@@ -23,9 +23,13 @@ window.addEventListener('DOMContentLoaded', function() {
         scene.collisionsEnabled = true;
         scene.clearColor = BABYLON.Color3.Black();
 
+        // Fog
+        scene.fogMode = BABYLON.Scene.FOGMODE_EXP;
+        scene.fogColor = new BABYLON.Color3(0.9, 0.9, 0.85);
+        scene.fogDensity = 0.01;
 
         // Camera
-        camera = new BABYLON.FreeCamera("FreeCamera", new BABYLON.Vector3(0, 2, -30), scene);
+        camera = new BABYLON.FreeCamera("FreeCamera", new BABYLON.Vector3(0, 2.6, -30), scene);
         camera.attachControl(canvas, true);
         camera.checkCollisions = true;
         camera.applyGravity = true;
@@ -60,8 +64,11 @@ window.addEventListener('DOMContentLoaded', function() {
         red = new BABYLON.StandardMaterial("red", scene);
         red.diffuseColor = new BABYLON.Color3(1, 0, 0);
 
+        blue = new BABYLON.StandardMaterial("blue", scene);
+        blue.diffuseColor = new BABYLON.Color3(0, 0, 1);
+
         yellow = new BABYLON.StandardMaterial("yellow", scene);
-        yellow.diffuseColor = new BABYLON.Color3(0, 0, 1);
+        yellow.diffuseColor = new BABYLON.Color3(1, 1, 0);
 
 
         // Ground
@@ -76,38 +83,55 @@ window.addEventListener('DOMContentLoaded', function() {
         sphere = BABYLON.Mesh.CreateSphere("sphere", 16, 2, scene);
         sphere.position.y = 2;
 
+        sphere.actionManager = new BABYLON.ActionManager(scene);
+
+
+        // Pick Up Object
+        sphere.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickDownTrigger, function(ev) {
+            ev.meshUnderPointer.material = green;
+            ev.meshUnderPointer.parent = camera;
+            ev.meshUnderPointer.position.set(0, 0, 4);
+        }));
+
+        // Release Object
+        sphere.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function(ev) {
+            ev.meshUnderPointer.material = red;
+            ev.meshUnderPointer.setParent(null);
+        }));
+
 
         // Apply Physics
         sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 3, restitution: 0.9 }, scene);
         ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, friction: 0.1, restitution: 0.9 }, scene);
 
+        // Remove Physics
+        // sphere.physicsImpostor.dispolkse(); 
 
         // Load Coffee Object
-        // BABYLON.SceneLoader.ImportMesh("", "./assets/models/coffee/", "coffee.obj", scene, function(newMeshes) {
-        //     newMeshes.forEach(function(coffee) {
-        //         coffee.checkCollisions = true;
-        //         coffee.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
-        //         coffee.parent = camera;
-        //         coffee.position.set(0, 0, 2);
-        //     });
-        // });
+        BABYLON.SceneLoader.ImportMesh("", "./assets/models/coffee/", "coffee.obj", scene, function(newMeshes) {
+            newMeshes.forEach(function(coffee) {
+                coffee.checkCollisions = true;
+                coffee.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
+                // coffee.parent = camera;
+                coffee.position.set(0, 1, -4);
+            });
+        });
 
 
-        // // On Click Event
-        // click = BABYLON.Mesh.CreateBox("hover", 1, scene);
-        // click.material = new BABYLON.StandardMaterial("texture", scene);
-        // click.position = new BABYLON.Vector3(0, 0, -0.1);
-        // click.checkCollisions = true;
+        // On Click Event
+        click = BABYLON.Mesh.CreateBox("hover", 0.1, scene);
+        click.material = yellow;
+        click.position = new BABYLON.Vector3(0, 0, -0.1);
+        click.checkCollisions = true;
 
-        // //When pointer down event is raised
-        // scene.onPointerDown = function(evt, pickResult) {
-        //     if (pickResult.hit) {
-        //         click.position.x = pickResult.pickedPoint.x;
-        //         click.position.y = pickResult.pickedPoint.y + 1;
-        //         click.position.z = pickResult.pickedPoint.z;
-        //     }
-        // };
-
+        //When pointer down event is raised
+        scene.onPointerDown = function(evt, pickResult) {
+            if (pickResult.hit) {
+                click.position.x = pickResult.pickedPoint.x;
+                click.position.y = pickResult.pickedPoint.y + 0.1;
+                click.position.z = pickResult.pickedPoint.z;
+            }
+        };
 
         // Hover Events
         hover = BABYLON.Mesh.CreateBox("hover", 4, scene);
@@ -137,8 +161,10 @@ window.addEventListener('DOMContentLoaded', function() {
 
         // On Click
         clickable.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function(ev) {
-            ev.meshUnderPointer.material = green;
+            ev.meshUnderPointer.material = blue;
         }));
+
+
 
 
         // Grabbable Object
@@ -147,19 +173,28 @@ window.addEventListener('DOMContentLoaded', function() {
         pickup.position.set(0, 2, -18);
         pickup.checkCollisions = true;
         pickup.actionManager = new BABYLON.ActionManager(scene);
+        pickup.physicsImpostor = new BABYLON.PhysicsImpostor(pickup, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 3, restitution: 0.1, friction: 0.2 }, scene);
 
         // Pick Up Object
         pickup.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickDownTrigger, function(ev) {
             ev.meshUnderPointer.material = green;
             ev.meshUnderPointer.parent = camera;
             ev.meshUnderPointer.position.set(0, 0, 4);
+            ev.meshUnderPointer.physicsImpostor.dispose();
+
         }));
 
         // Release Object
         pickup.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function(ev) {
             ev.meshUnderPointer.material = red;
             ev.meshUnderPointer.setParent(null);
+            ev.meshUnderPointer.physicsImpostor = new BABYLON.PhysicsImpostor(ev.meshUnderPointer, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 3, restitution: 0.1, friction: 0.2 }, scene);
+
         }));
+
+
+
+
 
         // Mouse Exit
         // pickup.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOutTrigger, function(ev) {
