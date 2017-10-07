@@ -1,4 +1,4 @@
-##Office Simulator
+## Office Simulator
 
 Temporary README while the project is still under development for user notes!
 
@@ -10,6 +10,10 @@ Babylon.js:
 - [Triggers](https://doc.babylonjs.com/tutorials/how_to_use_actions)
 - [Versions](http://www.babylonjs.com/versionbuilder/)
 - [Bounding Boxes](http://www.html5gamedevs.com/topic/13057-assigning-collision-detection-on-imported-meshes/)
+
+learning new things... ended up making basketball
+https://playground.babylonjs.com/#0H29AJ#14
+http://www.html5gamedevs.com/topic/33257-pick-up-mesh-with-physics/
 
 Outline:
 - Model Enviorment

@@ -1,47 +1,38 @@
-let scene, camera, loader, createScene;
-let ground, sphere, box, light0, light1, light2;
-let hover, pickup, clickable, click, grid, green, red, yellow, blue;
+let scene, camera;
+let ground, light0;
+let pickup, grid, green, red, yellow, blue;
+let controls = {};
+controls.q = false;
+controls.e = false;
+controls.w = false;
+controls.s = false;
 
-/*global BABYLON*/
-
-createScene = function() {
-    BABYLON.OBJFileLoader.OPTIMIZE_WITH_UV = true;
-    BABYLON.SceneLoader.ShowLoadingScreen = false;
+let createScene = function() {
 
     // Scene
     scene = new BABYLON.Scene(engine);
     scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0), new BABYLON.OimoJSPlugin());
-    scene.gravity = new BABYLON.Vector3(0, -0.981, 0); //un
     scene.collisionsEnabled = true;
-    scene.clearColor = BABYLON.Color3.White();
-
+    scene.clearColor = BABYLON.Color3.Black();
+    
     // Fog
     scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR;
-    scene.fogColor = BABYLON.Color3.White();
+    scene.fogColor = BABYLON.Color3.Black();
     scene.fogDensity = 0.01;
-    scene.fogStart = 20.0;
-    scene.fogEnd = 60.0;
+    scene.fogStart = 0;
+    scene.fogEnd = 40.0;
 
     // Camera
     camera = new BABYLON.FreeCamera("FreeCamera", new BABYLON.Vector3(0, 2.6, -30), scene);
+    camera.rotationQuaternion = new BABYLON.Quaternion();
     camera.attachControl(canvas, true);
     camera.checkCollisions = true;
     camera.applyGravity = true;
-    camera.speed = 0.5;
-
-    // WASD Camera Controls
-    camera.keysUp.push(87);
-    camera.keysLeft.push(65);
-    camera.keysDown.push(83);
-    camera.keysRight.push(68);
-
-    // Ellipsoid on Camera
     camera.ellipsoid = new BABYLON.Vector3(1.3, 1.3, 1.3);
+    camera.speed = 0.2;
 
-
-    // Lighting
     light0 = new BABYLON.HemisphericLight('light0', new BABYLON.Vector3(0, 10, 0), scene);
-    light0.intensity = 1.5;
+    light0.intensity = 2;
 
     /*
     Materials
@@ -52,7 +43,7 @@ createScene = function() {
     grid.gridRatio = 1;
     grid.majorUnitFrequency = 5;
     grid.mainColor = new BABYLON.Color3(0, 0, 0);
-    grid.lineColor = new BABYLON.Color3(0.5, 1, 1);
+    grid.lineColor = new BABYLON.Color3(1, 1, 1);
 
     // Basic Colors
     green = new BABYLON.StandardMaterial("green", scene);
@@ -71,112 +62,92 @@ createScene = function() {
     Mesh Objects
     */
 
-
     // Ground
-    ground = BABYLON.Mesh.CreatePlane("ground", 200.0, scene);
+    ground = BABYLON.Mesh.CreatePlane("ground", 100.0, scene);
     ground.material = grid;
-    // ground.position = new BABYLON.Vector3(0, 0, 0);
     ground.rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
     ground.checkCollisions = true;
     ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, friction: 0.1, restitution: 0.9 }, scene);
 
-
-    // Sphere
-    sphere = BABYLON.Mesh.CreateSphere("sphere", 16, 2, scene);
-    sphere.position.y = 2;
-    sphere.actionManager = new BABYLON.ActionManager(scene);
-    sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 3, restitution: 0.9 }, scene);
-
-
-    // Load Coffee Object
-    BABYLON.SceneLoader.ImportMesh("", "./assets/models/coffee/", "coffee.obj", scene, function(newMeshes) {
-        newMeshes.forEach(function(coffee) {
-            coffee.checkCollisions = true;
-            coffee.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
-            // coffee.parent = camera;
-            coffee.position.set(0, 1, -4);
-        });
-    });
-
-
-    // On Click Event
-    click = BABYLON.Mesh.CreateBox("hover", 0.1, scene);
-    click.material = yellow;
-    click.position = new BABYLON.Vector3(0, 0, -0.1);
-    click.checkCollisions = true;
-
-    //When pointer down event is raised
-    scene.onPointerDown = function(evt, pickResult) {
-        if (pickResult.hit) {
-            click.position.x = pickResult.pickedPoint.x;
-            click.position.y = pickResult.pickedPoint.y + 0.1;
-            click.position.z = pickResult.pickedPoint.z;
-        }
-    };
-
-    // Hover Events
-    hover = BABYLON.Mesh.CreateBox("hover", 4, scene);
-    hover.material = new BABYLON.StandardMaterial("texture", scene);
-    hover.position.set(-18, 2, -18);
-    hover.isPickable = true;
-    hover.actionManager = new BABYLON.ActionManager(scene);
-    hover.checkCollisions = true;
-
-    // Mouse Enter
-    hover.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOverTrigger, function(ev) {
-        ev.meshUnderPointer.material.emissiveColor = BABYLON.Color3.Red();
-    }));
-
-    // Mouse Exit
-    hover.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOutTrigger, function(ev) {
-        ev.meshUnderPointer.material.emissiveColor = BABYLON.Color3.Black();
-    }));
-
-
-    // Clickable Events
-    clickable = BABYLON.Mesh.CreateBox("hover", 4, scene);
-    clickable.material = new BABYLON.StandardMaterial("texture", scene);
-    clickable.position.set(-8, 2, -18);
-    clickable.checkCollisions = true;
-    clickable.actionManager = new BABYLON.ActionManager(scene);
-
-    // On Click
-    clickable.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function(ev) {
-        ev.meshUnderPointer.material = blue;
-    }));
-
+    //dummy
+    var dummy = new BABYLON.Mesh("dummy", scene);
+    dummy.rotationQuaternion = new BABYLON.Quaternion();
 
     // Grabbable Object
     pickup = BABYLON.Mesh.CreateBox("hover", 1, scene);
-    pickup.material = new BABYLON.StandardMaterial("texture", scene);
+    pickup.material = green;
     pickup.position.set(0, 2, -18);
-    // pickup.checkCollisions = true;
+    pickup.checkCollisions = true;
     pickup.actionManager = new BABYLON.ActionManager(scene);
-    pickup.physicsImpostor = new BABYLON.PhysicsImpostor(pickup, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 3, restitution: 0.1, friction: 0.2 }, scene);
+    pickup.physicsImpostor = new BABYLON.PhysicsImpostor(pickup, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 5, restitution: 0.1, friction: 0.2 }, scene);
+
+
+    for (var i = 0; i < 10; i++) {
+        var box = BABYLON.Mesh.CreateBox("box" + 1, 1, scene);
+        box.material = new BABYLON.StandardMaterial("boxMat", scene);
+        box.material.diffuseColor = new BABYLON.Color3(1, 1, 1);
+        box.position.set(i + i * 0.3, 2, -18);
+        box.checkCollisions = true;
+        box.physicsImpostor = new BABYLON.PhysicsImpostor(box, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 3, restitution: 0.1, friction: 0.2 }, scene);
+    }
 
     // Pick Up Object
     pickup.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickDownTrigger, function(ev) {
         pickup.material = green;
-        pickup.parent = camera;
-        pickup.position.set(0, 0, 4);
-        pickup.physicsImpostor.dispose();
+        distanceFromCamera = BABYLON.Vector3.Distance(pickup.position, camera.position);
+        pickup.isPicked = true;
 
     }));
 
     // Release Object
     pickup.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function(ev) {
         pickup.material = red;
-        pickup.setParent(null);
-        pickup.physicsImpostor = new BABYLON.PhysicsImpostor(pickup, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 3, restitution: 0.1, friction: 0.2 }, scene);
+        pickup.isPicked = false;
+        pickup.physicsImpostor._physicsBody.linearVelocity.set(0, 0, 0);
 
     }));
 
     pickup.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickOutTrigger, function(ev) {
-        pickup.material = blue;
-        pickup.setParent(null);
-        pickup.physicsImpostor = new BABYLON.PhysicsImpostor(pickup, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 3, restitution: 0.1, friction: 0.2 }, scene);
+        pickup.material = yellow;
+        pickup.isPicked = false;
+        pickup.physicsImpostor._physicsBody.linearVelocity.set(0, 0, 0);
 
     }));
+    
+    scene.registerBeforeRender(function(){
+        var distanceFromCamera = 6;
+        if(pickup.isPicked){
+            if(controls.q){
+                pickup.addRotation(0,0.04,0);
+            }
+            if(controls.e){
+                pickup.addRotation(0,-0.04,0);
+            }
+            if(controls.w){
+                pickup.addRotation(0.04,0,0);
+            }
+            if(controls.s){
+                pickup.addRotation(-0.04,0,0);
+            }
+
+            //Clone of the camera's quaternion
+            var cameraQuaternion = camera.rotationQuaternion.clone();
+            //Vector3 (Z-axis/direction)
+            var directionVector = new BABYLON.Vector3(0,0,distanceFromCamera); 
+            //Quaternion/Vector3 multiplication. Function shamelessly stolen from CannonJS's Quaternion class 
+            var rotationVector = multiplyQuaternionByVector(cameraQuaternion, directionVector);
+            //New position based on camera position and direction vector
+            dummy.position.set(camera.position.x + rotationVector.x, camera.position.y + rotationVector.y, camera.position.z + rotationVector.z);
+            var pos = dummy.position.subtract(pickup.position);
+            pickup.physicsImpostor._physicsBody.linearVelocity.set(pos.x*10,pos.y*10,pos.z*10);
+            pickup.physicsImpostor._physicsBody.angularVelocity.set(0,0,0);
+         }
+    });
 
     return scene;
 };
+
+/*global BABYLON*/
+/*global engine*/
+/*global canvas*/
+/*global multiplyQuaternionByVector*/
