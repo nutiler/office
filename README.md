@@ -39,6 +39,7 @@ right click throws object.
 http://store.steampowered.com/app/448280/Job_Simulator/
 
 Bugs:
+
 `Upon releasing an object it can fall through the floor when looking down.`
 
 `Sometimes releasing an object makes it float away, upon picking up it falls through the floor.`
