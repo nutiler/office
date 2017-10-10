@@ -1,16 +1,14 @@
 let scene, camera, ground, box, light0, dummy;
 let pickup, green, red, yellow, blue, purple;
-var controls = {};
+let controls = {};
 controls.q = false;
 controls.e = false;
 controls.w = false;
 controls.s = false;
 controls.space = false;
 
-// http://www.html5gamedevs.com/topic/33257-pick-up-mesh-with-physics
-// Thank you everyone, Raggar & Wingnut especially for the contributions! - Nutiler 
 
-var createScene = function() {
+let createScene = function() {
 
     // Scene
     scene = new BABYLON.Scene(engine);
@@ -24,7 +22,6 @@ var createScene = function() {
     camera.attachControl(canvas, true);
     camera.checkCollisions = true;
     camera.applyGravity = true;
-    console.log(camera);
 
     // Ellipsoid on Camera
     camera.ellipsoid = new BABYLON.Vector3(1.3, 1.3, 1.3);
@@ -67,7 +64,7 @@ var createScene = function() {
     pickup.actionManager = new BABYLON.ActionManager(scene);
     pickup.physicsImpostor = new BABYLON.PhysicsImpostor(pickup, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 3, restitution: 0.1, friction: 0.2 }, scene);
 
-    for (var i = 0; i < 5; i++) {
+    for (let i = 0; i < 5; i++) {
         box = BABYLON.Mesh.CreateBox("box" + 1, 1, scene);
         box.material = new BABYLON.StandardMaterial("boxMat", scene);
         box.material.diffuseColor = new BABYLON.Color3(0.5, 0.5, 0.5);
@@ -104,7 +101,7 @@ var createScene = function() {
 
     //Distance from the camera (Z-axis/direction)
     scene.registerBeforeRender(function() {
-        var distanceFromCamera = 6;
+        let distanceFromCamera = 6;
         if (pickup.isPicked) {
             if (controls.q) {
                 pickup.addRotation(0, 0.04, 0);
@@ -120,17 +117,17 @@ var createScene = function() {
             }
 
             //Clone of the camera's quaternion
-            var cameraQuaternion = camera.rotationQuaternion.clone();
+            let cameraQuaternion = camera.rotationQuaternion.clone();
             //Vector3 (Z-axis/direction)
-            var directionVector = new BABYLON.Vector3(0, 0, distanceFromCamera);
-            //Quaternion/Vector3 multiplication. Function shamelessly stolen from CannonJS's Quaternion class 
-            var rotationVector = multiplyQuaternionByVector(cameraQuaternion, directionVector);
+            let directionVector = new BABYLON.Vector3(0, 0, distanceFromCamera);
+            //Quaternion/Vector3 multiplication.
+            let rotationVector = multiplyQuaternionByVector(cameraQuaternion, directionVector);
             //New position based on camera position and direction vector
             dummy.position.set(camera.position.x + rotationVector.x, camera.position.y + rotationVector.y, camera.position.z + rotationVector.z);
-            var velocityDirectionVector = dummy.position.subtract(pickup.position);
+            let velocityDirectionVector = dummy.position.subtract(pickup.position);
             pickup.physicsImpostor._physicsBody.linearVelocity.set(velocityDirectionVector.x * 10, velocityDirectionVector.y * 10, velocityDirectionVector.z * 10);
             pickup.physicsImpostor._physicsBody.angularVelocity.set(0, 0, 0);
-            
+
             // Enabling this line breaks rotation but makes the object look at the player.
             // pickup.rotationQuaternion = camera.rotationQuaternion.clone();
 
@@ -140,81 +137,11 @@ var createScene = function() {
                 pickup.material = purple;
                 pickup.isPicked = false;
             }
-
-        }
-        else {
-
         }
     });
 
-    function multiplyQuaternionByVector(quaternion, vector) {
-        var target = new BABYLON.Vector3();
-
-        var x = vector.x,
-            y = vector.y,
-            z = vector.z;
-
-        var qx = quaternion.x,
-            qy = quaternion.y,
-            qz = quaternion.z,
-            qw = quaternion.w;
-
-        // q*v
-        var ix = qw * x + qy * z - qz * y,
-            iy = qw * y + qz * x - qx * z,
-            iz = qw * z + qx * y - qy * x,
-            iw = -qx * x - qy * y - qz * z;
-
-        target.x = ix * qw + iw * -qx + iy * -qz - iz * -qy;
-        target.y = iy * qw + iw * -qy + iz * -qx - ix * -qz;
-        target.z = iz * qw + iw * -qz + ix * -qy - iy * -qx;
-
-        return target;
-
-
-    };
-
     return scene;
 };
-
-document.addEventListener("keydown", keyHandlerDown);
-document.addEventListener("keyup", keyHandlerUp);
-
-function keyHandlerDown(event) {
-    if (event.key === "q" && !controls.q) {
-        controls.q = true;
-    }
-    if (event.key === "e" && !controls.e) {
-        controls.e = true;
-    }
-    if (event.key === "w" && !controls.w) {
-        controls.w = true;
-    }
-    if (event.key === "s" && !controls.s) {
-        controls.s = true;
-    }
-    if (event.key === " " && !controls.space) {
-        controls.space = true;
-    }
-}
-
-function keyHandlerUp(event) {
-    if (event.key === "q" && controls.q) {
-        controls.q = false;
-    }
-    if (event.key === "e" && controls.e) {
-        controls.e = false;
-    }
-    if (event.key === "w" && controls.w) {
-        controls.w = false;
-    }
-    if (event.key === "s" && controls.s) {
-        controls.s = false;
-    }
-    if (event.key === " " && controls.space) {
-        controls.space = false;
-    }
-}
 
 /*global BABYLON*/
 /*global engine*/

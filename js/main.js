@@ -56,6 +56,9 @@ function keyHandlerDown(event) {
     if (event.key === "s" && !controls.s) {
         controls.s = true;
     }
+    if (event.key === " " && !controls.space) {
+        controls.space = true;
+    }
 }
 
 function keyHandlerUp(event) {
@@ -70,6 +73,9 @@ function keyHandlerUp(event) {
     }
     if (event.key === "s" && controls.s) {
         controls.s = false;
+    }
+    if (event.key === " " && controls.space) {
+        controls.space = false;
     }
 }
 
@@ -98,5 +104,8 @@ function multiplyQuaternionByVector(quaternion, vector) {
 
     return target;
 
+}
 
-};
+/*global scene*/
+/*global controls*/
+/*global createScene*/
